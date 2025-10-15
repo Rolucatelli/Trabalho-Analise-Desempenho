@@ -1,14 +1,14 @@
 # Nome do projeto
-PROJ_NAME=heuristicas_3-partition
+PROJ_NAME=simulacao_filas_menor
 
 # Nome do arquivo de Debug
-DEBUG_NAME=heuristicas_3-partition_debug
+DEBUG_NAME=$(PROJ_NAME)_debug
 
 # Arquivos .c
-C_SOURCE=$(wildcard ./src/*.c) $(wildcard ./src/algoritmos/*.c) $(wildcard ./src/estruturas/*.c)
+C_SOURCE=$(wildcard ./src/*.c)
 
 # Arquivos .h
-H_SOURCE=$(wildcard ./hdr/*.h) $(wildcard ./hdr/algoritmos/*.h) $(wildcard ./hdr/estruturas/*.h)
+H_SOURCE=$(wildcard ./hdr/*.h)
 
 # Arquivos objeto
 OBJ=$(subst .c,.o,$(subst src,objects,$(C_SOURCE) ./objects/main.c))
@@ -20,7 +20,7 @@ CC=gcc
 CC_FLAGS=-c -W -Wall -pedantic
 
 # Comando utilizado como target do clean
-RM=rm -f
+RM=rm -rf
 
 #########################
 # Compilação e linkagem #
@@ -29,7 +29,8 @@ all: objFolder exeFolder $(PROJ_NAME)
 debug: objFolder exeFolder $(DEBUG_NAME)
 
 run: all
-	@ ./exe/${PROJ_NAME}
+	@ clear
+	@ ./exe/${PROJ_NAME} relatorio_80.csv 0.5 0.15
 
 $(DEBUG_NAME): $(OBJ)
 	@ echo 'Construindo arquivo de Debug usando o linker GCC: $@'
@@ -39,7 +40,7 @@ $(DEBUG_NAME): $(OBJ)
 
 $(PROJ_NAME): $(OBJ)
 	@ echo 'Construindo o binário usando o linker GCC: $@'
-	$(CC) $^ -o ./exe/$@
+	$(CC) $^ -o ./exe/$@ -lm
 	@ echo 'Binário pronto: $@'
 	@ echo ' '
 
@@ -49,7 +50,7 @@ $(PROJ_NAME): $(OBJ)
 	@ echo ' '
 
 ./objects/main.o: ./main/main.c $(H_SOURCE)
-	@ echo 'Construindo target usando o compilador GCC: $<'
+	@ echo 'Construindo main usando o compilador GCC: $<'
 	$(CC) $< $(CC_FLAGS) -o $@
 	@ echo ' '
 
@@ -57,10 +58,10 @@ objFolder:
 	@ mkdir -p objects
 
 exeFolder:
-	@ mkdir -p exe
+	@ mkdir -p exe exe/relatorios
 
 clean:
-	@ $(RM) ./objects/* ./exe/* *~
+	@ $(RM) ./objects ./exe *~
 
 
 .PHONY: all clean debug run
