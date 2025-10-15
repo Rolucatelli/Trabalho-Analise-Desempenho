@@ -10,10 +10,10 @@ int main(int argc, char *argv[])
 {
     srand(time(NULL));
 
-    // FILE *out = abre_relatorio(argc, argv);
-    FILE *out = fopen("./exe/relatorios/relatorio_fila0.csv", "w+");
-    FILE *out1 = fopen("./exe/relatorios/relatorio_fila1.csv", "w+");
-    FILE *out2 = fopen("./exe/relatorios/relatorio_fila2.csv", "w+");
+    FILE *out = abre_relatorio(argc, argv);
+    //// FILE *out = fopen("./exe/relatorios/relatorio_fila0.csv", "w+");
+    //// FILE *out1 = fopen("./exe/relatorios/relatorio_fila1.csv", "w+");
+    //// FILE *out2 = fopen("./exe/relatorios/relatorio_fila2.csv", "w+");
 
     /*--------------------------------------------------------------------*/
     //- Declarando Variáveis
@@ -54,9 +54,10 @@ int main(int argc, char *argv[])
     if (argc >= 3)
     {
         char *endptr1;
-        filas[0].media_inter_requisicoes = strtod(argv[2], &endptr1);
-        filas[1].media_inter_requisicoes = strtod(argv[2], &endptr1);
-        filas[2].media_inter_requisicoes = strtod(argv[2], &endptr1);
+        double temp = strtod(argv[2], &endptr1);
+        filas[0].media_inter_requisicoes = temp * 0.5;
+        filas[1].media_inter_requisicoes = temp;
+        filas[2].media_inter_requisicoes = temp * 1.5;
     }
     else
     {
@@ -96,9 +97,7 @@ int main(int argc, char *argv[])
 
     double volta = 10.0;
 
-    fprintf(out, "Tempo decorrido,E[N],E[W] chegadas,E[W] saídas,E[W],Lambda,Erro Little,Fila,Requisições feitas,Requisições atendidas,Média entre requisições,Média entre servicos,Ocupação calculada\n");
-    fprintf(out1, "Tempo decorrido,E[N],E[W] chegadas,E[W] saídas,E[W],Lambda,Erro Little,Fila,Requisições feitas,Requisições atendidas,Média entre requisições,Média entre servicos,Ocupação calculada\n");
-    fprintf(out2, "Tempo decorrido,E[N],E[W] chegadas,E[W] saídas,E[W],Lambda,Erro Little,Fila,Requisições feitas,Requisições atendidas,Média entre requisições,Média entre servicos,Ocupação calculada\n");
+    fprintf(out, "Tempo decorrido,E[N],E[W],Lambda,Erro Little,Fila 1,Fila 2,Fila 3,Requisições feitas,Requisições atendidas,Média entre requisições,Média entre servicos,Ocupação calculada\n");
 
     // gerando o tempo de chegada da primeira requisicao
     fila_prox_req(&filas[0], tempo_decorrido);
@@ -119,22 +118,17 @@ int main(int argc, char *argv[])
         {
             //& ACONTECE UMA CHEGADA
 
-            int idx;
-            if (proxima_requisicao == filas[0].proxima_requisicao)
+            for (int i = 0; i < 3; i++)
             {
-                idx = 0;
-            }
-            else if (proxima_requisicao == filas[1].proxima_requisicao)
-            {
-                idx = 1;
-            }
-            else if (proxima_requisicao == filas[2].proxima_requisicao)
-            {
-                idx = 2;
+                if (proxima_requisicao == filas[i].proxima_requisicao)
+                {
+                    (filas[i].tam)++;
+                    (filas[i].max) = (filas[i].tam) > (filas[i].max) ? (filas[i].tam) : (filas[i].max);
+                    fila_prox_req(&filas[i], tempo_decorrido);
+                    fila_entrada_little(&filas[i], tempo_decorrido);
+                }
             }
 
-            (filas[idx].tam)++;
-            (filas[idx].max) = (filas[idx].tam) > (filas[idx].max) ? (filas[idx].tam) : (filas[idx].max);
             if ((filas[0].tam + filas[1].tam + filas[2].tam) == 1)
             {
                 // ambiente estava ocioso, inicia atendimento imediatamente
@@ -142,9 +136,6 @@ int main(int argc, char *argv[])
                 qtd_servicos++;
                 soma_tempo_servico += tempo_servico - tempo_decorrido;
             }
-            fila_prox_req(&filas[idx], tempo_decorrido);
-
-            fila_entrada_little(&filas[idx], tempo_decorrido);
         }
         else if (tempo_decorrido == volta)
         {
@@ -154,9 +145,7 @@ int main(int argc, char *argv[])
             fila_atualiza_little(&filas[2], tempo_decorrido);
 
             // Printar no arquivo
-            fprint_metrics(out, filas[0].E_N, filas[0].E_W_chegadas, filas[0].E_W_saidas, tempo_decorrido, (filas[0].tam), filas[0].soma_inter_requisicoes, filas[0].qtd_requisicoes, soma_tempo_servico, qtd_servicos);
-            fprint_metrics(out1, filas[1].E_N, filas[1].E_W_chegadas, filas[1].E_W_saidas, tempo_decorrido, (filas[1].tam), filas[1].soma_inter_requisicoes, filas[1].qtd_requisicoes, soma_tempo_servico, qtd_servicos);
-            fprint_metrics(out2, filas[2].E_N, filas[2].E_W_chegadas, filas[2].E_W_saidas, tempo_decorrido, (filas[2].tam), filas[2].soma_inter_requisicoes, filas[2].qtd_requisicoes, soma_tempo_servico, qtd_servicos);
+            fprint_metrics(out, filas, tempo_decorrido, soma_tempo_servico, qtd_servicos);
             volta += 10.0;
         }
         else
@@ -176,6 +165,7 @@ int main(int argc, char *argv[])
             }
 
             (filas[idx].tam)--;
+            filas[idx].ultimo_atendimento = tempo_decorrido;
             if ((filas[0].tam) || (filas[1].tam) || (filas[2].tam))
             {
                 // atendo o proximo
@@ -213,7 +203,7 @@ int main(int argc, char *argv[])
     printf("===============================\n");
     printf("qtd_requisicoes: %ld\n", filas[0].qtd_requisicoes + filas[1].qtd_requisicoes + filas[2].qtd_requisicoes);
     printf("max_fila (0,1,2): %ld %ld %ld\n", filas[0].max, filas[1].max, filas[2].max);
-    printf("media entre requisicoes (0,1,2): %lf %lf %lf\n", filas[0].soma_inter_requisicoes / filas[0].qtd_requisicoes, filas[2].soma_inter_requisicoes / filas[2].qtd_requisicoes, filas[2].soma_inter_requisicoes / filas[2].qtd_requisicoes);
+    printf("media entre requisicoes (0,1,2): %lf %lf %lf\n", filas[0].soma_inter_requisicoes / filas[0].qtd_requisicoes, filas[1].soma_inter_requisicoes / filas[1].qtd_requisicoes, filas[2].soma_inter_requisicoes / filas[2].qtd_requisicoes);
     printf("media entre servicos: %lf\n", soma_tempo_servico / qtd_servicos);
     printf("\n===============================\n");
     printf("          Ocupacao\n");

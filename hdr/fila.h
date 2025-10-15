@@ -29,4 +29,11 @@ void fila_saida_little(Fila *fila, double tempo_decorrido);
 
 void fila_atualiza_little(Fila *fila, double tempo_decorrido);
 
+void fprint_metrics(
+    FILE *file,
+    Fila filas[3],
+    double tempo_decorrido,
+    double soma_tempo_servico,
+    unsigned long int qtd_servicos);
+
 #endif

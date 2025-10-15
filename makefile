@@ -30,7 +30,14 @@ debug: objFolder exeFolder $(DEBUG_NAME)
 
 run: all
 	@ clear
-	@ ./exe/${PROJ_NAME} relatorio_80.csv 0.5 0.15
+	@ ./exe/${PROJ_NAME} relatorio_95.csv 0.5 0.1295
+
+test: all
+	@ ./exe/${PROJ_NAME} relatorio_80.csv 0.5 0.1091
+	@ ./exe/${PROJ_NAME} relatorio_90.csv 0.5 0.1227
+	@ ./exe/${PROJ_NAME} relatorio_95.csv 0.5 0.1295
+	@ ./exe/${PROJ_NAME} relatorio_99_9.csv 0.5 0.1362
+
 
 $(DEBUG_NAME): $(OBJ)
 	@ echo 'Construindo arquivo de Debug usando o linker GCC: $@'

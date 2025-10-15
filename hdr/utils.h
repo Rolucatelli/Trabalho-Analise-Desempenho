@@ -9,7 +9,7 @@
 
 #include <stdio.h>
 
-typedef struct
+typedef struct _medida_little
 {
     double tempo_anterior;
     unsigned long int qt_requisicoes;
@@ -21,10 +21,6 @@ typedef struct
  * Retorna o menor valor dentre n valores
  */
 double min(int n, ...);
-
-void fprint_metrics(FILE *file, Medida_little E_N, Medida_little E_W_chegadas, Medida_little E_W_saidas,
-                    double tempo_decorrido, unsigned long int fila, double soma_inter_requisicoes,
-                    unsigned long int qtd_requisicoes, double soma_tempo_servico, unsigned long int qtd_servicos);
 
 double aleatorio();
 
