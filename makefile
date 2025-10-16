@@ -1,5 +1,12 @@
 # Nome do projeto
-PROJ_NAME=simulacao_filas_menor
+PROJ_NAME_P1=simulacao_filas_p1
+PROJ_FILE_P1=./main/parte1.c
+
+PROJ_NAME_P2=simulacao_filas_p2
+PROJ_FILE_P2=./main/parte2.c
+
+# Projeto que será executado com o run
+PROJ_NAME=$(PROJ_NAME_P2)
 
 # Nome do arquivo de Debug
 DEBUG_NAME=$(PROJ_NAME)_debug
@@ -11,7 +18,7 @@ C_SOURCE=$(wildcard ./src/*.c)
 H_SOURCE=$(wildcard ./hdr/*.h)
 
 # Arquivos objeto
-OBJ=$(subst .c,.o,$(subst src,objects,$(C_SOURCE) ./objects/main.c))
+OBJ=$(subst .c,.o,$(subst src,objects,$(C_SOURCE)))
 
 # Compilador
 CC=gcc
@@ -30,13 +37,13 @@ debug: objFolder exeFolder $(DEBUG_NAME)
 
 run: all
 	@ clear
-	@ ./exe/${PROJ_NAME} relatorio_95.csv 0.5 0.1295
+	@ ./exe/$(PROJ_NAME) relatorio_95.csv 0.5 0.1295
 
 test: all
-	@ ./exe/${PROJ_NAME} relatorio_80.csv 0.5 0.1091
-	@ ./exe/${PROJ_NAME} relatorio_90.csv 0.5 0.1227
-	@ ./exe/${PROJ_NAME} relatorio_95.csv 0.5 0.1295
-	@ ./exe/${PROJ_NAME} relatorio_99_9.csv 0.5 0.1362
+	@ ./exe/$(PROJ_NAME) relatorio_80.csv 0.5 0.1091
+	@ ./exe/$(PROJ_NAME) relatorio_90.csv 0.5 0.1227
+	@ ./exe/$(PROJ_NAME) relatorio_95.csv 0.5 0.1295
+	@ ./exe/$(PROJ_NAME) relatorio_99_9.csv 0.5 0.1362
 
 
 $(DEBUG_NAME): $(OBJ)
@@ -45,19 +52,20 @@ $(DEBUG_NAME): $(OBJ)
 	@ echo 'Arquivo de Debug pronto!: $@'
 	@ echo ' '
 
-$(PROJ_NAME): $(OBJ)
+$(PROJ_NAME_P1): $(OBJ)
 	@ echo 'Construindo o binário usando o linker GCC: $@'
-	$(CC) $^ -o ./exe/$@ -lm
+	$(CC) $(PROJ_FILE_P1) $^ -o ./exe/$@ -lm
+	@ echo 'Binário pronto: $@'
+	@ echo ' '
+
+$(PROJ_NAME_P2): $(OBJ)
+	@ echo 'Construindo o binário usando o linker GCC: $@'
+	$(CC) $(PROJ_FILE_P2) $^ -o ./exe/$@ -lm
 	@ echo 'Binário pronto: $@'
 	@ echo ' '
 
 ./objects/%.o: ./src/%.c ./hdr/%.h
 	@ echo 'Construindo target usando o compilador GCC: $<'
-	$(CC) $< $(CC_FLAGS) -o $@
-	@ echo ' '
-
-./objects/main.o: ./main/main.c $(H_SOURCE)
-	@ echo 'Construindo main usando o compilador GCC: $<'
 	$(CC) $< $(CC_FLAGS) -o $@
 	@ echo ' '
 

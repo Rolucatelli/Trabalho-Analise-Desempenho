@@ -11,9 +11,6 @@ int main(int argc, char *argv[])
     srand(time(NULL));
 
     FILE *out = abre_relatorio(argc, argv);
-    //// FILE *out = fopen("./exe/relatorios/relatorio_fila0.csv", "w+");
-    //// FILE *out1 = fopen("./exe/relatorios/relatorio_fila1.csv", "w+");
-    //// FILE *out2 = fopen("./exe/relatorios/relatorio_fila2.csv", "w+");
 
     /*--------------------------------------------------------------------*/
     //- Declarando Variáveis
@@ -105,6 +102,7 @@ int main(int argc, char *argv[])
     fila_prox_req(&filas[2], tempo_decorrido);
 
     double proxima_requisicao;
+    int idx = 0;
 
     /*--------------------------------------------------------------------*/
     //- Fazendo a simulação
@@ -152,16 +150,11 @@ int main(int argc, char *argv[])
         {
             //& ACONTECE UMA SAIDA
 
-            int idx;
             double menor_tempo = INFINITY;
 
-            for (int i = 0; i < 3; i++)
+            while (filas[idx].tam <= 0)
             {
-                if (filas[i].tam > 0 && filas[i].ultimo_atendimento < menor_tempo)
-                {
-                    menor_tempo = filas[i].ultimo_atendimento;
-                    idx = i;
-                }
+                idx = (idx + 1) % 3;
             }
 
             (filas[idx].tam)--;
@@ -175,6 +168,7 @@ int main(int argc, char *argv[])
             }
 
             fila_saida_little(&filas[idx], tempo_decorrido);
+            idx = (idx + 1) % 3;
         }
     }
     /*--------------------------------------------------------------------*/
