@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     double media_tempo_servico;
 
     // possui o tempo de servico da requisicao atualmente
-    double tempo_servico;
+    double tempo_servico = 1000.0;
 
     // filas
     Fila filas[3];
@@ -103,44 +103,46 @@ int main(int argc, char *argv[])
     fila_prox_req(&filas[2], tempo_decorrido);
 
     double proxima_requisicao;
-    int idx = 0;
 
     /*--------------------------------------------------------------------*/
     //- Fazendo a simulação
     while (tempo_decorrido < tempo_simulacao)
     {
+        // printf("DEBUG: antes loop: tempo_decorrido=%lf, proxima0=%lf proxima1=%lf proxima2=%lf tempo_servico=%lf volta=%lf\n",tempo_decorrido,filas[0].proxima_requisicao, filas[1].proxima_requisicao, filas[2].proxima_requisicao,tempo_servico, volta);
+
         proxima_requisicao = min(3, filas[0].proxima_requisicao, filas[1].proxima_requisicao, filas[2].proxima_requisicao);
         tempo_decorrido = min(2 + ((filas[0].tam) || (filas[1].tam) || (filas[2].tam)), proxima_requisicao, volta, tempo_servico);
-
+        // printf("tempo_decorrido: %lf\n", tempo_decorrido);
         // tratando os eventos da simulacao:
         if (tempo_decorrido == proxima_requisicao)
         {
+            // puts("Entrada!");
             //& ACONTECE UMA CHEGADA
-
-            int i = fila_menor_atraso_medio(filas, tempo_decorrido);
-            for (int j = 0; j < 3; j++)
+            int i;
+            for (i = 0; i < 3; i++)
             {
-                if (filas[i].tam < MAX_FILA)
+                if (proxima_requisicao == filas[i].proxima_requisicao)
                 {
-                    break;
+                    if (filas[i].tam >= MAX_FILA)
+                    {
+                        fila_menor_atraso_medio(filas, tempo_decorrido);
+                        filas[i].proxima_requisicao = tempo_decorrido + exponencial(filas[i].media_inter_requisicoes);
+                    }
+                    else
+                    {
+
+                        (filas[i].tam)++;
+                        (filas[i].max) = (filas[i].tam) > (filas[i].max) ? (filas[i].tam) : (filas[i].max);
+
+                        //*Parte 3
+                        insere_janela(&(filas[i]), tempo_decorrido);
+
+                        fila_prox_req(&filas[i], tempo_decorrido);
+                        fila_entrada_little(&filas[i], tempo_decorrido);
+                    }
                 }
-                i = (i + 1) % 3;
-            }
-            if (filas[i].tam >= MAX_FILA)
-            {
-                break;
             }
 
-            filas[i].tam++; // n++
-
-            (filas[i].max) = (filas[i].tam) > (filas[i].max) ? (filas[i].tam) : (filas[i].max);
-
-            //*Parte 3
-            filas[i].S += tempo_decorrido;
-            filas[i].T++;
-            insere_janela(&(filas[i].janela), tempo_decorrido);
-
-            fila_prox_req(&filas[i], tempo_decorrido);
             if ((filas[0].tam + filas[1].tam + filas[2].tam) == 1)
             {
                 // ambiente estava ocioso, inicia atendimento imediatamente
@@ -163,7 +165,6 @@ int main(int argc, char *argv[])
         else
         {
             //& ACONTECE UMA SAIDA
-
             int i = fila_maior_atraso_medio(filas, tempo_decorrido);
             for (int j = 0; j < 3; j++)
             {
@@ -173,20 +174,13 @@ int main(int argc, char *argv[])
                 }
                 i = (i + 1) % 3;
             }
-            if (filas[i].tam <= 0)
-            {
-                break;
-            }
 
             filas[i].tam--; // n--
 
             //*Parte 3
-            filas[i].S -= filas[i].janela.janela[filas[i].janela.p];
-            filas[i].D += filas[i].janela.janela[filas[i].janela.p];
-            remove_janela(&(filas[i].janela));
+            remove_janela(&(filas[i]), tempo_decorrido);
 
-            (filas[idx].tam)--;
-            filas[idx].ultimo_atendimento = tempo_decorrido;
+            filas[i].ultimo_atendimento = tempo_decorrido;
             if ((filas[0].tam) || (filas[1].tam) || (filas[2].tam))
             {
                 // atendo o proximo
@@ -195,8 +189,7 @@ int main(int argc, char *argv[])
                 soma_tempo_servico += tempo_servico - tempo_decorrido;
             }
 
-            fila_saida_little(&filas[idx], tempo_decorrido);
-            idx = (idx + 1) % 3;
+            fila_saida_little(&filas[i], tempo_decorrido);
         }
     }
     /*--------------------------------------------------------------------*/

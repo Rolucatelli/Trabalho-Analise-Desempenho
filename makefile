@@ -38,9 +38,33 @@ RM=rm -rf
 all: objFolder exeFolder $(PROJ_NAME)
 debug: objFolder exeFolder $(DEBUG_NAME)
 
-run: all
+run1: objFolder exeFolder $(PROJ_NAME_P1)
 	@ clear
-	@ ./exe/$(PROJ_NAME) relatorio_95.csv 0.5 0.1295
+	@ ./exe/$(PROJ_NAME_P1) Parte\ 1/relatorio_80.csv 0.5 0.1091
+	@ ./exe/$(PROJ_NAME_P1) Parte\ 1/relatorio_90.csv 0.5 0.1227
+	@ ./exe/$(PROJ_NAME_P1) Parte\ 1/relatorio_95.csv 0.5 0.1295
+	@ ./exe/$(PROJ_NAME_P1) Parte\ 1/relatorio_99_9.csv 0.5 0.1362
+
+run2: objFolder exeFolder $(PROJ_NAME_P2)
+	@ clear
+	@ ./exe/$(PROJ_NAME_P2) Parte\ 2/relatorio_80.csv 0.5 0.1091
+	@ ./exe/$(PROJ_NAME_P2) Parte\ 2/relatorio_90.csv 0.5 0.1227
+	@ ./exe/$(PROJ_NAME_P2) Parte\ 2/relatorio_95.csv 0.5 0.1295
+	@ ./exe/$(PROJ_NAME_P2) Parte\ 2/relatorio_99_9.csv 0.5 0.1362
+
+run3: objFolder exeFolder $(PROJ_NAME_P3)
+	@ clear
+	@ ./exe/$(PROJ_NAME_P3) Parte\ 3/relatorio_80.csv 0.5 0.1091
+	@ ./exe/$(PROJ_NAME_P3) Parte\ 3/relatorio_90.csv 0.5 0.1227
+	@ ./exe/$(PROJ_NAME_P3) Parte\ 3/relatorio_95.csv 0.5 0.1295
+	@ ./exe/$(PROJ_NAME_P3) Parte\ 3/relatorio_99_9.csv 0.5 0.1362
+
+run: objFolder exeFolder $(PROJ_NAME_P3)
+	@ clear
+# 	@ ./exe/$(PROJ_NAME_P3) Parte\ 3/relatorio_80.csv 0.5 0.1091
+# 	@ ./exe/$(PROJ_NAME_P3) Parte\ 3/relatorio_90.csv 0.5 0.1227
+# 	@ ./exe/$(PROJ_NAME_P3) Parte\ 3/relatorio_95.csv 0.5 0.1295
+	@ ./exe/$(PROJ_NAME_P3) Parte\ 3/relatorio_99_9.csv 0.5 0.1362
 
 test: all
 	@ ./exe/$(PROJ_NAME) relatorio_80.csv 0.5 0.1091
@@ -82,7 +106,7 @@ objFolder:
 	@ mkdir -p objects
 
 exeFolder:
-	@ mkdir -p exe exe/relatorios
+	@ mkdir -p exe exe/relatorios exe/relatorios/Parte\ 1 exe/relatorios/Parte\ 2 exe/relatorios/Parte\ 3
 
 clean:
 	@ $(RM) ./objects ./exe *~

@@ -1,4 +1,5 @@
 #include "../hdr/fila.h"
+#include <stdlib.h>
 #include <math.h>
 
 void inicia_fila(Fila *fila)
@@ -109,17 +110,22 @@ void fprint_metrics(FILE *file, Fila filas[3], double tempo_decorrido, double so
             soma_tempo_servico / tempo_decorrido);
 }
 
+double fila_atraso_medio(Fila fila, double tempo_decorrido)
+{
+    return (1 / fila.T) * (((double)fila.tam * tempo_decorrido) - fila.S + fila.D);
+}
+
 int fila_maior_atraso_medio(Fila filas[3], double tempo_decorrido)
 {
-    double atraso_medio[3];
-    int maior_v = -1;
+    double atraso_medio;
+    double maior_v = -1;
     int maior_idx = -1;
     for (int i = 0; i < 3; i++)
     {
-        atraso_medio[i] = (1 / filas[i].T) * ((filas[i].tam * tempo_decorrido) - filas[i].S + filas[i].D);
-        if (atraso_medio[i] > maior_v)
+        atraso_medio = ((double)(1 / filas[i].T)) * (((double)filas[i].tam * tempo_decorrido) - filas[i].S + filas[i].D);
+        if (atraso_medio > maior_v)
         {
-            maior_v = atraso_medio[i];
+            maior_v = atraso_medio;
             maior_idx = i;
         }
     }
@@ -128,15 +134,17 @@ int fila_maior_atraso_medio(Fila filas[3], double tempo_decorrido)
 
 int fila_menor_atraso_medio(Fila filas[3], double tempo_decorrido)
 {
-    double atraso_medio[3];
-    int menor_v = INFINITY;
-    int menor_idx = INFINITY;
+    double atraso_medio;
+    double menor_v = INFINITY;
+    int menor_idx = 0;
     for (int i = 0; i < 3; i++)
     {
-        atraso_medio[i] = (1 / filas[i].T) * ((filas[i].tam * tempo_decorrido) - filas[i].S + filas[i].D);
-        if (atraso_medio[i] < menor_v)
+        printf("I: %d, T: %ld, tam: %ld, tempo_decorrido: %lf, S: %lf, D: %lf, ", i, filas[i].T, filas[i].tam, tempo_decorrido, filas[i].S, filas[i].D);
+        atraso_medio = ((double)(1 / filas[i].T)) * (((double)filas[i].tam * tempo_decorrido) - filas[i].S + filas[i].D);
+        printf("atraso_medio: %.20lf\n", atraso_medio);
+        if (atraso_medio < menor_v)
         {
-            menor_v = atraso_medio[i];
+            menor_v = atraso_medio;
             menor_idx = i;
         }
     }
