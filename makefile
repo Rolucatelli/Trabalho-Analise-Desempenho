@@ -23,6 +23,8 @@ H_SOURCE=$(wildcard ./hdr/*.h)
 # Arquivos objeto
 OBJ=$(subst .c,.o,$(subst src,objects,$(C_SOURCE)))
 
+FLAG=${1..10}
+
 # Compilador
 CC=gcc
 
@@ -37,6 +39,52 @@ RM=rm -rf
 #########################
 all: objFolder exeFolder $(PROJ_NAME)
 debug: objFolder exeFolder $(DEBUG_NAME)
+
+simulate:
+	@for i in $$(seq 1 50); do \
+	    echo "Execução $$i"; \
+	    $(MAKE) run1; \
+	    $(MAKE) run2; \
+	    $(MAKE) run3; \
+	    mv "./exe/relatorios/Parte 1/relatorio_80.csv" "./exe/relatorios/Parte 1/relatorio_80__$$i.csv"; \
+	    mv "./exe/relatorios/Parte 1/relatorio_90.csv" "./exe/relatorios/Parte 1/relatorio_90__$$i.csv"; \
+	    mv "./exe/relatorios/Parte 1/relatorio_95.csv" "./exe/relatorios/Parte 1/relatorio_95__$$i.csv"; \
+	    mv "./exe/relatorios/Parte 1/relatorio_99_9.csv" "./exe/relatorios/Parte 1/relatorio_99_9__$$i.csv"; \
+	    mv "./exe/relatorios/Parte 2/relatorio_80.csv" "./exe/relatorios/Parte 2/relatorio_80__$$i.csv"; \
+	    mv "./exe/relatorios/Parte 2/relatorio_90.csv" "./exe/relatorios/Parte 2/relatorio_90__$$i.csv"; \
+	    mv "./exe/relatorios/Parte 2/relatorio_95.csv" "./exe/relatorios/Parte 2/relatorio_95__$$i.csv"; \
+	    mv "./exe/relatorios/Parte 2/relatorio_99_9.csv" "./exe/relatorios/Parte 2/relatorio_99_9__$$i.csv"; \
+	    mv "./exe/relatorios/Parte 3/relatorio_80.csv" "./exe/relatorios/Parte 3/relatorio_80__$$i.csv"; \
+	    mv "./exe/relatorios/Parte 3/relatorio_90.csv" "./exe/relatorios/Parte 3/relatorio_90__$$i.csv"; \
+	    mv "./exe/relatorios/Parte 3/relatorio_95.csv" "./exe/relatorios/Parte 3/relatorio_95__$$i.csv"; \
+	    mv "./exe/relatorios/Parte 3/relatorio_99_9.csv" "./exe/relatorios/Parte 3/relatorio_99_9__$$i.csv"; \
+	done; \
+	\
+	echo "Compactando relatórios por ocupação..."; \
+	for parte in "Parte 1" "Parte 2" "Parte 3"; do \
+	    cd "./exe/relatorios/$$parte" && \
+        zip -j "relatorios_80.zip"    relatorio_80__*.csv; \
+        zip -j "relatorios_90.zip"    relatorio_90__*.csv; \
+        zip -j "relatorios_95.zip"    relatorio_95__*.csv; \
+        zip -j "relatorios_99_9.zip"  relatorio_99_9__*.csv; \
+		zip -j "relatorios_$$parte.zip" relatorios_*.zip; \
+		\
+		python3 ../../../gerar_medias.py "relatorios_$$parte.zip" .; \
+		zip -j "relatorios_media_$$parte.zip" relatorios_*_media.csv; \
+		\
+        rm -f relatorio_80__*.csv; \
+        rm -f relatorio_90__*.csv; \
+        rm -f relatorio_95__*.csv; \
+        rm -f relatorio_99_9__*.csv; \
+		rm -f relatorios_80*; \
+        rm -f relatorios_90*; \
+        rm -f relatorios_95*; \
+        rm -f relatorios_99_9*; \
+        \
+	    cd - >/dev/null; \
+	done; \
+	zip -j "./exe/relatorios/Relatorios.zip" ./exe/relatorios/Parte\ 1/relatorios*.zip ./exe/relatorios/Parte\ 2/relatorios*.zip ./exe/relatorios/Parte\ 3/relatorios*.zip
+
 
 run1: objFolder exeFolder $(PROJ_NAME_P1)
 	@ clear
