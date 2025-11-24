@@ -22,6 +22,23 @@ double min(int n, ...)
     return menor;
 }
 
+double max(int n, ...)
+{
+    va_list args;
+    va_start(args, n);
+
+    double maior = -1;
+
+    for (int i = 0; i < n; i++)
+    {
+        double valor = va_arg(args, double);
+        if (valor > maior)
+            maior = valor;
+    }
+    va_end(args);
+    return maior;
+}
+
 double aleatorio()
 {
     double u = rand() / ((double)RAND_MAX + 1); // u entre [0,1)

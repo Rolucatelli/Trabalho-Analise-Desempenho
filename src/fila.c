@@ -1,4 +1,5 @@
 #include "../hdr/fila.h"
+#include <math.h>
 
 void inicia_fila(Fila *fila)
 {
@@ -12,6 +13,16 @@ void inicia_fila(Fila *fila)
     inicia_little(&(fila->E_W_chegadas));
     inicia_little(&(fila->E_W_saidas));
     fila->ultimo_atendimento = 0.0;
+    // Parte 3
+    fila->S = 0.0;
+    fila->D = 0.0;
+    fila->T = 0;
+    for (int i = 0; i < MAX_FILA; i++)
+    {
+        fila->janela.janela[i] = 0;
+    }
+    fila->janela.p = 0;
+    fila->janela.q = 0;
 }
 
 void fila_prox_req(Fila *fila, double tempo_decorrido)
@@ -41,7 +52,6 @@ void fila_saida_little(Fila *fila, double tempo_decorrido)
     fila->E_W_saidas.qt_requisicoes++;
     fila->E_W_saidas.tempo_anterior = tempo_decorrido;
 }
-
 void fila_atualiza_little(Fila *fila, double tempo_decorrido)
 {
     fila->E_N.soma_area += (tempo_decorrido - fila->E_N.tempo_anterior) * fila->E_N.qt_requisicoes;
@@ -54,12 +64,7 @@ void fila_atualiza_little(Fila *fila, double tempo_decorrido)
     fila->E_W_saidas.tempo_anterior = tempo_decorrido;
 }
 
-void fprint_metrics(
-    FILE *file,
-    Fila filas[3],
-    double tempo_decorrido,
-    double soma_tempo_servico,
-    unsigned long int qtd_servicos)
+void fprint_metrics(FILE *file, Fila filas[3], double tempo_decorrido, double soma_tempo_servico, unsigned long int qtd_servicos)
 {
     double E_N_final = (filas[0].E_N.soma_area + filas[1].E_N.soma_area + filas[2].E_N.soma_area) / tempo_decorrido;
     double E_W_soma = (filas[0].E_W_chegadas.soma_area - filas[0].E_W_saidas.soma_area) + (filas[1].E_W_chegadas.soma_area - filas[1].E_W_saidas.soma_area) + (filas[2].E_W_chegadas.soma_area - filas[2].E_W_saidas.soma_area);
@@ -102,4 +107,38 @@ void fprint_metrics(
             (filas[0].soma_inter_requisicoes / filas[0].qtd_requisicoes) + (filas[1].soma_inter_requisicoes / filas[1].qtd_requisicoes) + (filas[2].soma_inter_requisicoes / filas[2].qtd_requisicoes),
             soma_tempo_servico / qtd_servicos,
             soma_tempo_servico / tempo_decorrido);
+}
+
+int fila_maior_atraso_medio(Fila filas[3], double tempo_decorrido)
+{
+    double atraso_medio[3];
+    int maior_v = -1;
+    int maior_idx = -1;
+    for (int i = 0; i < 3; i++)
+    {
+        atraso_medio[i] = (1 / filas[i].T) * ((filas[i].tam * tempo_decorrido) - filas[i].S + filas[i].D);
+        if (atraso_medio[i] > maior_v)
+        {
+            maior_v = atraso_medio[i];
+            maior_idx = i;
+        }
+    }
+    return maior_idx;
+}
+
+int fila_menor_atraso_medio(Fila filas[3], double tempo_decorrido)
+{
+    double atraso_medio[3];
+    int menor_v = INFINITY;
+    int menor_idx = INFINITY;
+    for (int i = 0; i < 3; i++)
+    {
+        atraso_medio[i] = (1 / filas[i].T) * ((filas[i].tam * tempo_decorrido) - filas[i].S + filas[i].D);
+        if (atraso_medio[i] < menor_v)
+        {
+            menor_v = atraso_medio[i];
+            menor_idx = i;
+        }
+    }
+    return menor_idx;
 }

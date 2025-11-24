@@ -5,8 +5,11 @@ PROJ_FILE_P1=./main/parte1.c
 PROJ_NAME_P2=simulacao_filas_p2
 PROJ_FILE_P2=./main/parte2.c
 
+PROJ_NAME_P3=simulacao_filas_p3
+PROJ_FILE_P3=./main/parte3.c
+
 # Projeto que será executado com o run
-PROJ_NAME=$(PROJ_NAME_P2)
+PROJ_NAME=$(PROJ_NAME_P3)
 
 # Nome do arquivo de Debug
 DEBUG_NAME=$(PROJ_NAME)_debug
@@ -64,6 +67,12 @@ $(PROJ_NAME_P2): $(OBJ)
 	@ echo 'Binário pronto: $@'
 	@ echo ' '
 
+$(PROJ_NAME_P3): $(OBJ)
+	@ echo 'Construindo o binário usando o linker GCC: $@'
+	$(CC) $(PROJ_FILE_P3) $^ -o ./exe/$@ -lm
+	@ echo 'Binário pronto: $@'
+	@ echo ' '
+
 ./objects/%.o: ./src/%.c ./hdr/%.h
 	@ echo 'Construindo target usando o compilador GCC: $<'
 	$(CC) $< $(CC_FLAGS) -o $@
@@ -78,6 +87,5 @@ exeFolder:
 clean:
 	@ $(RM) ./objects ./exe *~
 
-
-.PHONY: all clean debug run
+.PHONY: all clean debug test run objFolder exeFolder
 # Se existir algum arquivo com o mesmo nome que uma tag, como clean.c ou all.c, ele ignora
